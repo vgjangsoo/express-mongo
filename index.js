@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const { check, validationResult } = require('express-validator');
 
 const app = express();
 
@@ -36,21 +37,32 @@ const users = [
     }
 ];
 
-app.get('/', function(req, res){
-    res.render('index', {
-        title: 'Customers',
-        users: users
-    });
-});
+app.get('/', (req, res) => res.render('index', {
+    title: 'Customers',
+    users: users
+}));
 
-app.post('/users/add', function(req, res) {
-    const newUser = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        email: req.body.email,
-    };
+app.post('/users/add',[ 
+    check('first_name').not().isEmpty(), 
+    check('last_name').not().isEmpty(), 
+    check('email').not().isEmpty()
+],(req, res) => {
 
-    console.log(newUser);
+    // Validation Errors
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty()) {
+        console.log("ERRORS");
+
+    } else {
+        const newUser = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+        }; 
+
+        console.log(newUser);
+    }
 });
 
 app.listen(3000, function(){
